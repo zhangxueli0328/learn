@@ -1,0 +1,20 @@
+win7下配置Lumen环境时遇到的问题及解决方法
+
+注：个人安装的环境：wamp apache2.4，以下解决方案也是网上搜的及身边牛人指点的，在这里总结一下。
+1.访问index.php主页不成功, 500 Internal Server Error
+遇到这个问题时，个人有两种解决方案：
+方法一：将配置lumen的public目录问访问的根目录（修改Apache中的配置文件httpd.conf,刚开始我只改了DocumentRoot及<Directory，发现没有改成功，然后我又改了默认端口，才改成功，个人认为可能和虚拟主机有关系，这个问题没有深究）。
+但到这一步还没完，你会发现route.php中调用其他类的路由方法不能访问，还是出错，这时还是需要修改Apache中的配置文件httpd.conf，这时需要将
+<Directory />
+    #AllowOverride none
+    AllowOverride All
+    Require all denied
+</Directory>
+中的Require all denied改为 Require all granted，配置文件中有多处Require all denied，可能不知道要改哪个，我的方式是都改了，当然这时在自己的开发测试的环境中，至于具体哪个地方的Require all denied起决定行作用，还没有深究，有兴趣的童鞋可以研究研究。然后这样就可以正常使用了。
+方法二：不想改配置文件中的根目录，而只是将lumen的项目作为子目录，那么这时你需要改动一下index.php文件中的代码了：将$app->run();改为$app->run($app['request']);
+相对来讲这种方式是比较简单的。
+
+2.windows下.env.example改名问题，Lumen的项目要求需要.env的配置文件，windows下不允许直接改成只有后缀名的文件，会提示你要你输入文件名。
+个人采用的解决方法：
+新建一个.txt文件，然后打开——》文件——》另存为，选择文件的保存类型为所有文件，在文件名中输入.env,保存即可。这样就生成了一份只有后缀名的文件。
+
